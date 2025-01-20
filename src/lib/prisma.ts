@@ -1,5 +1,4 @@
 import debug from 'debug';
-import { Prisma } from '@prisma/client';
 import prisma from '@umami/prisma-client';
 import { formatInTimeZone } from 'date-fns-tz';
 import { MYSQL, POSTGRESQL, getDatabaseType } from 'lib/db';
@@ -123,7 +122,7 @@ function getSearchSQL(column: string, param: string = 'search'): string {
   const db = getDatabaseType();
   const like = db === POSTGRESQL ? 'ilike' : 'like';
 
-  return `and ${column} ${like} {{${param}}`;
+  return `and ${column} ${like} {{${param}}}`;
 }
 
 function mapFilter(column: string, operator: string, name: string, type: string = '') {
@@ -286,7 +285,7 @@ async function pagedRawQuery(
   return { data, count, page: +page, pageSize: size, orderBy };
 }
 
-function getQueryMode(): { mode?: Prisma.QueryMode } {
+function getQueryMode(): { mode?: 'default' | 'insensitive' } {
   const db = getDatabaseType();
 
   if (db === POSTGRESQL) {

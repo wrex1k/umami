@@ -58,6 +58,8 @@ export async function getSession(req: NextApiRequestCollect): Promise<SessionDat
       subdivision1,
       subdivision2,
       city,
+      ip,
+      userAgent,
     };
   }
 
