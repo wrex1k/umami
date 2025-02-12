@@ -1,12 +1,9 @@
 import classNames from 'classnames';
-import { useEscapeKey, useMessages } from 'components/hooks';
-import { objectToArray } from 'lib/data';
-import { formatLongNumber } from 'lib/format';
-import { useContext, useMemo, useState } from 'react';
-import { TextOverflow, TooltipPopup } from 'react-basics';
-import { firstBy } from 'thenby';
+import { useEscapeKey, useMessages } from '@/components/hooks';
+import { objectToArray } from '@/lib/data';
 import { ReportContext } from '../[reportId]/Report';
 import styles from './JourneyView.module.css';
+import { formatLongNumber } from '@/lib/format';
 
 const NODE_HEIGHT = 60;
 const NODE_GAP = 10;

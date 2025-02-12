@@ -1,7 +1,7 @@
 import debug from 'debug';
 import prisma from '@umami/prisma-client';
 import { formatInTimeZone } from 'date-fns-tz';
-import { MYSQL, POSTGRESQL, getDatabaseType } from 'lib/db';
+import { MYSQL, POSTGRESQL, getDatabaseType } from '@/lib/db';
 import { SESSION_COLUMNS, OPERATORS, DEFAULT_PAGE_SIZE } from './constants';
 import { fetchWebsite } from './load';
 import { maxDate } from './date';
@@ -151,7 +151,7 @@ function getFilterQuery(filters: QueryFilters = {}, options: QueryOptions = {}):
 
       if (name === 'referrer') {
         arr.push(
-          'and (website_event.referrer_domain != {{websiteDomain}} or website_event.referrer_domain is null)',
+          `and (website_event.referrer_domain != session.hostname or website_event.referrer_domain is null)`,
         );
       }
     }
@@ -205,7 +205,6 @@ async function parseFilters(
       ...getFilterParams(filters),
       websiteId,
       startDate: maxDate(filters.startDate, website?.resetAt),
-      websiteDomain: website.domain,
     },
   };
 }
@@ -243,7 +242,7 @@ async function pagedQuery<T>(model: string, criteria: T, pageParams: PageParams)
   const data = await prisma.client[model].findMany({
     ...criteria,
     ...{
-      ...(size > 0 && { take: +size, skip: +size * (page - 1) }),
+      ...(size > 0 && { take: +size, skip: +size * (+page - 1) }),
       ...(orderBy && {
         orderBy: [
           {
@@ -266,7 +265,7 @@ async function pagedRawQuery(
 ) {
   const { page = 1, pageSize, orderBy, sortDescending = false } = pageParams;
   const size = +pageSize || DEFAULT_PAGE_SIZE;
-  const offset = +size * (page - 1);
+  const offset = +size * (+page - 1);
   const direction = sortDescending ? 'desc' : 'asc';
 
   const statements = [
