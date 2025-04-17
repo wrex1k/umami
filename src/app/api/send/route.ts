@@ -34,11 +34,6 @@ const schema = z.object({
 
 export async function POST(request: Request) {
   try {
-    // Bot check
-    if (!process.env.DISABLE_BOT_CHECK && isbot(request.headers.get('user-agent'))) {
-      return json({ beep: 'boop' });
-    }
-
     const { body, error } = await parseRequest(request, schema, { skipAuth: true });
 
     if (error) {
@@ -85,6 +80,11 @@ export async function POST(request: Request) {
     // Client info
     const { ip, userAgent, device, browser, os, country, subdivision1, subdivision2, city } =
       await getClientInfo(request, payload);
+
+    // Bot check
+    if (!process.env.DISABLE_BOT_CHECK && isbot(userAgent)) {
+      return json({ beep: 'boop' });
+    }
 
     // IP block
     if (hasBlockedIp(ip)) {
@@ -146,6 +146,21 @@ export async function POST(request: Request) {
       const urlQuery = currentUrl.search.substring(1);
       const urlDomain = currentUrl.hostname.replace(/^www./, '');
 
+      // UTM Params
+      const utmSource = currentUrl.searchParams.get('utm_source');
+      const utmMedium = currentUrl.searchParams.get('utm_medium');
+      const utmCampaign = currentUrl.searchParams.get('utm_campaign');
+      const utmContent = currentUrl.searchParams.get('utm_content');
+      const utmTerm = currentUrl.searchParams.get('utm_term');
+
+      // Click IDs
+      const gclid = currentUrl.searchParams.get('gclid');
+      const fbclid = currentUrl.searchParams.get('fbclid');
+      const msclkid = currentUrl.searchParams.get('msclkid');
+      const ttclid = currentUrl.searchParams.get('ttclid');
+      const lifatid = currentUrl.searchParams.get('li_fat_id');
+      const twclid = currentUrl.searchParams.get('twclid');
+
       if (process.env.REMOVE_TRAILING_SLASH) {
         urlPath = urlPath.replace(/(.+)\/$/, '$1');
       }
@@ -171,10 +186,21 @@ export async function POST(request: Request) {
         visitId,
         urlPath: safeDecodeURI(urlPath),
         urlQuery,
+        utmSource,
+        utmMedium,
+        utmCampaign,
+        utmContent,
+        utmTerm,
         referrerPath: safeDecodeURI(referrerPath),
         referrerQuery,
         referrerDomain,
         pageTitle: safeDecodeURIComponent(title),
+        gclid,
+        fbclid,
+        msclkid,
+        ttclid,
+        lifatid,
+        twclid,
         eventName: name,
         eventData: data,
         hostname: hostname || urlDomain,
