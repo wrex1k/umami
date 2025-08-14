@@ -175,6 +175,7 @@ async function clickhouseQuery(
       and w.created_at between {startDate:DateTime64} and {endDate:DateTime64}
       and w.currency = {currency:String}
     group by s.country
+    order by value desc
     `,
     { websiteId, startDate, endDate, currency },
   );
